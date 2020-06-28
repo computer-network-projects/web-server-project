@@ -1,40 +1,137 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 01: Simple Web Server</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
     <style>
-        h3 {
-            text-align: center;
+        body{
+            padding: 100px 0px;
+            background-image: url(images/background.jpg);
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-attachment: fixed;
         }
-
-    </style>
-    <title>Login</title>
-  </head>
-  <body>
-    <h3>Login</h3>
-
-    <div class="d-flex justify-content-center align-items-center container ">
-        <form class="login col-sm-4">
-          <div class="form-group">
-            <label for="username">Username</label>
-            <input type="email" class="form-control" id="username">
-          </div>
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" class="form-control" id="password">
-          </div>
-
-          <button type="submit" class="btn btn-success btn-block">Login</button>
+        .login-form {
+            width: 340px;
+            margin: 30px auto;
+            font-size: 15px;
+           
+        }
+        .login-form form {
+            margin-bottom: 15px;
+            background: #f7f7f7;
+            box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+        }
+        .login-form h2 {
+            margin: 0 0 15px;
+        }
+        .login-form .hint-text {
+            color: #777;
+            padding-bottom: 15px;
+            text-align: center;
+              font-size: 13px; 
+        }
+        .form-control, .btn {
+            min-height: 38px;
+            border-radius: 2px;
+        }
+        .login-form .avatar {
+            margin: 0 auto 30px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            z-index: 9;
+            background: #ffffff;
+            padding: 15px;
+            box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
+        }
+        .login-form .avatar img {
+            width: 100%;
+        }
+        .login-btn {        
+            font-size: 15px;
+            font-weight: bold;
+        }
+        .or-seperator {
+            margin: 20px 0 10px;
+            text-align: center;
+            border-top: 1px solid #ccc;
+        }
+        .or-seperator i {
+            padding: 0 10px;
+            background: #f7f7f7;
+            position: relative;
+            top: -11px;
+            z-index: 1;
+        }
+        .social-btn .btn {
+            margin: 10px 0;
+            font-size: 15px;
+            text-align: left; 
+            line-height: 24px;       
+        }
+        .social-btn .btn i {
+            float: left;
+            margin: 4px 15px  0 5px;
+            min-width: 15px;
+        }
+        .input-group-addon .fa{
+            font-size: 18px;
+        }
+        </style>
+</head>
+<body>
+    <div class="login-form">
+        <form action="/examples/actions/confirmation.php" method="post">
+            <h2 class="text-center">Sign in</h2>
+            <div class="avatar">
+                <img src="images/logo-khtn.png" alt="Avatar">
+            </div>           		
+            <div class="text-center social-btn">
+                <a href="https://www.facebook.com/" class="btn btn-primary btn-block" target="blank"><i class="fa fa-facebook"></i> Sign in with <b>Facebook</b></a>
+                <a href="https://twitter.com/i/flow/signup" class="btn btn-info btn-block" target="blank"><i class="fa fa-twitter"></i> Sign in with <b>Twitter</b></a>
+                <a href="https://accounts.google.com/signin/v2/identifier?flowName=GlifWebSignIn&flowEntry=ServiceLogin" class="btn btn-danger btn-block" target="blank"><i class="fa fa-google"></i> Sign in with <b>Google</b></a>
+                <a href="https://github.com/login" class="btn btn-secondary btn-block"><i class="fa fa-github" target="blank"></i> Sign in with <b>Github</b></a>
+            </div>
+            <div class="or-seperator"><i>or</i></div>
+            <div class="form-group">
+                <div class="input-group">                
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <span class="fa fa-user"></span>
+                        </span>                    
+                    </div>
+                    <input type="text" class="form-control" name="username" placeholder="Username" required="required">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fa fa-lock"></i>
+                        </span>                    
+                    </div>
+                    <input type="password" class="form-control" name="password" placeholder="Password" required="required">
+                </div>
+            </div>        
+            <div class="form-group">
+                <button type="submit" class="btn btn-success btn-block login-btn">Sign in</button>
+            </div>
+            <div class="clearfix">
+                <label class="float-left form-check-label"><input type="checkbox"> Remember me</label>
+                <a href="#" class="float-right text-success">Forgot Password?</a>
+            </div>  
+            
         </form>
+        <div class="hint-text">Don't have an account? <a href="#" class="text-success">Register Now!</a></div>
     </div>
-
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-  </body>
+</body>
 </html>
