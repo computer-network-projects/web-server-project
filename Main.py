@@ -1,32 +1,81 @@
 import socket
 import os
+from _thread import start_new_thread
 
-# Standard socket stuff:
+clients = {}
+addresses = {}
+
+BUFFER_SIZE = 1024
 host = 'localhost'
 port = 3000
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.bind((host, port))
-sock.listen(5)
-
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind((host, port))
+server.listen(5)
 print("Server started on port", port)
+cur_status = ''
 
-filename = os.path.join(os.path.dirname(__file__), 'static/index.html')
+
+def parse_data(data_arg):
+    start = data_arg.find('username') + 9
+    end = start
+    for char in data_arg[start:]:
+        if char == '&':
+            break
+        end += 1
+
+    _username = data_arg[start: end]
+    _password = data_arg[end + 10:]
+    return [_username, _password]
+
+
+def client_thread(client_sock):
+    data = client_sock.recv(1024)  # get the request, 1kB max
+    if not data:
+        client_sock.close()
+        return
+
+    clients[client_sock] = len(clients)
+
+    data = data.decode('utf-8')
+    method = data[0]
+
+    if method == 'P':
+        username, password = parse_data(data)
+
+        if username != 'admin' and password != 'admin':
+            print("404")
+            cur_status = '404'
+        elif username == 'admin' and password == 'admin':
+            print("SUCCESS")
+            cur_status = 'success'
+
+    elif method == 'G':
+        # send index.html
+        cur_status = ''
+
+    file = 'static/index.html'
+    if cur_status == '404':
+        file = 'public/notFound.html'
+        cur_status = ''
+    elif cur_status == 'success':
+        file = 'public/info.html'
+        cur_status = ''
+
+    filename = os.path.join(os.path.dirname(__file__), file)
+    client_sock.sendall(str.encode("HTTP/1.1 200 OK\n"))
+    client_sock.sendall(str.encode('Connection: keep-alive\n'))
+    client_sock.sendall(str.encode('Content-Type: text/html\n'))
+    client_sock.sendall(str.encode('\r\n'))
+    f = open(filename, 'r')
+    print(f.read())
+    client_sock.sendall(str.encode(f.read()))
+    f.close()
+
 
 while True:
-    client_sock, client_address = sock.accept()
+    client, client_address = server.accept()
+    addresses[client] = client_address
     print("Connection from: " + str(client_address))
-    req = client_sock.recv(1024)  # get the request, 1kB max
-    if not req:
-        break
+    start_new_thread(client_thread, (client, ))
 
-    f = open(filename, 'r')
-    client_sock.sendall(str.encode("HTTP/1.0 200 OK\n"))
-    client_sock.sendall(str.encode('Content-Type: text/html\n'))
-    client_sock.send(str.encode('\r\n'))
-    # send data per line
-    for line in f.readlines():
-        print('Sent ', repr(line))
-        client_sock.sendall(str.encode(""+line+""))
-        line = f.read(1024)
-    f.close()
-    client_sock.close()
+
