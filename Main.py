@@ -29,7 +29,7 @@ def parse_data(data_arg):
 
 
 def client_thread(client_sock):
-    data = client_sock.recv(1024)  # get the request, 1kB max
+    data = client_sock.recv(1024)
     if not data:
         client_sock.close()
         return
@@ -50,15 +50,14 @@ def client_thread(client_sock):
             cur_status = 'success'
 
     elif method == 'G':
-        # send index.html
         cur_status = ''
 
     file = 'static/index.html'
     if cur_status == '404':
-        file = 'public/notFound.html'
+        file = 'static/notFound.html'
         cur_status = ''
     elif cur_status == 'success':
-        file = 'public/info.html'
+        file = 'static/info.html'
         cur_status = ''
 
     filename = os.path.join(os.path.dirname(__file__), file)
@@ -67,7 +66,6 @@ def client_thread(client_sock):
     client_sock.sendall(str.encode('Content-Type: text/html\n'))
     client_sock.sendall(str.encode('\r\n'))
     f = open(filename, 'r')
-    print(f.read())
     client_sock.sendall(str.encode(f.read()))
     f.close()
 
