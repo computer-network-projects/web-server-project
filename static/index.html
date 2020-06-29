@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project 01: Simple Web Server</title>
+    <title>Login</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
@@ -13,7 +13,7 @@
     <h3>Login</h3>
 
     <div class="d-flex justify-content-center align-items-center container ">
-        <form class="login col-sm-4">
+        <form action="http://localhost:3000" class="login col-sm-4">
           <div class="form-group">
             <label for="username">Username</label>
             <input type="text" class="form-control" id="username">
@@ -33,27 +33,29 @@
           let httpRequest;
           document.getElementById("ajaxSubmit").addEventListener('click', postSubmit);
 
-          function postSubmit(e) {
-            e.preventDefault();
+          function postSubmit() {
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
             httpRequest = new XMLHttpRequest();
 
             if (!httpRequest) {
-              alert('Giving up :( Cannot create an XMLHTTP instance');
+              alert('Cannot create an XMLHTTP instance');
               return false;
             }
 
-              httpRequest.onreadystatechange = alertContents;
-              httpRequest.open('POST', 'http://127.0.0.1:3000/login');
+              httpRequest.onreadystatechange = redirect;
+              httpRequest.open('POST', '/info.html');
               httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+              httpRequest.setRequestHeader('Sec-Fetch-Dest', 'document');
               httpRequest.send('username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password));
           }
 
-          function alertContents() {
+          function redirect() {
             if (httpRequest.readyState === XMLHttpRequest.DONE) {
               if (httpRequest.status == 200) {
-                alert(httpRequest.responseText);
+                window.location.replace("/info.html");
+              } else if (httpRequest.status == 404) {
+                window.location.replace("/404.html");
               }
             }
           }

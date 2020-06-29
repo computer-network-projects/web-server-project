@@ -1,18 +1,6 @@
 import socket
+import sys
 import os
-from _thread import start_new_thread
-
-clients = {}
-addresses = {}
-
-BUFFER_SIZE = 1024
-host = 'localhost'
-port = 3000
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind((host, port))
-server.listen(5)
-print("Server started on port", port)
-cur_status = ''
 
 
 def parse_data(data_arg):
@@ -22,58 +10,102 @@ def parse_data(data_arg):
         if char == '&':
             break
         end += 1
-
     _username = data_arg[start: end]
     _password = data_arg[end + 10:]
-    return [_username, _password]
+    return _username, _password
 
 
-def client_thread(client_sock):
-    data = client_sock.recv(1024)
-    if not data:
-        client_sock.close()
-        return
+def create_response(status, body):
+    if status == 200:
+        status_line = 'HTTP/1.1 200 OK\r\n'
+    elif status == 404:
+        status_line = 'HTTP/1.1 404 NOT FOUND\r\n'
 
-    clients[client_sock] = len(clients)
-
-    data = data.decode('utf-8')
-    method = data[0]
-
-    if method == 'P':
-        username, password = parse_data(data)
-
-        if username != 'admin' and password != 'admin':
-            print("404")
-            cur_status = '404'
-        elif username == 'admin' and password == 'admin':
-            print("SUCCESS")
-            cur_status = 'success'
-
-    elif method == 'G':
-        cur_status = ''
-
-    file = 'static/index.html'
-    if cur_status == '404':
-        file = 'static/notFound.html'
-        cur_status = ''
-    elif cur_status == 'success':
-        file = 'static/info.html'
-        cur_status = ''
-
-    filename = os.path.join(os.path.dirname(__file__), file)
-    client_sock.sendall(str.encode("HTTP/1.1 200 OK\n"))
-    client_sock.sendall(str.encode('Connection: keep-alive\n'))
-    client_sock.sendall(str.encode('Content-Type: text/html\n'))
-    client_sock.sendall(str.encode('\r\n'))
-    f = open(filename, 'r')
-    client_sock.sendall(str.encode(f.read()))
-    f.close()
+    headers = 'Content-Type: text/html\r\n'
+    headers += 'Connection: close\r\n\r\n'
+    res_header = status_line + headers
+    return res_header, body
 
 
-while True:
-    client, client_address = server.accept()
-    addresses[client] = client_address
-    print("Connection from: " + str(client_address))
-    start_new_thread(client_thread, (client, ))
+def get_filename(req):
+    filename = req.split(' ')[1]
+    filename = filename.split('?')[0]
+    filename = filename[1:]
+    if filename == '':
+        filename = 'index.html'
+
+    return os.path.join(os.path.dirname(__file__), 'static/', filename)
 
 
+def read_file(filename):
+    try:
+        file_obj = open(filename, 'rb')
+        data = file_obj.read()
+        file_obj.close()
+        filename = None
+        # File is found. Set the respone code accordingly
+        response_code = 200
+
+    except FileNotFoundError:
+        print('File Not Found')
+        response_code = 404
+        data = ""
+
+    return response_code, data
+
+
+def main():
+    port = 3000
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server.bind(('', port))
+    server.listen(5)
+
+    cur_path = os.path.dirname(__file__)
+    prev_method = None
+    username, password = None, None
+
+    print('Server started on PORT', port)
+
+    while True:
+        try:
+            client, address = server.accept()
+            client.settimeout(120)
+
+            print('Client connected:', client)
+            data = client.recv(1024)
+            if not data:
+                print('No data received')
+                break
+
+            req = data.decode()
+            req_method = req.split(' ')[0]
+            res_file = os.path.join(cur_path, 'static/index.html')
+            res_status, data = read_file(res_file)
+
+            if req_method == 'GET' or req_method == 'POST':
+                if req_method == 'POST':
+                    username, password = parse_data(req)
+                    prev_method = 'POST'
+                elif req_method == 'GET' and prev_method == 'POST':
+                    if username == 'admin' and password == 'admin':
+                        res_file = os.path.join(cur_path, 'static/info.html')
+                    else:
+                        res_status = 404
+                        res_file = os.path.join(cur_path, 'static/404.html')
+                        prev_method = None
+
+                    file_obj = open(res_file, 'rb')
+                    data = file_obj.read()
+
+                res_header, res_body = create_response(res_status, data)
+                client.send(res_header.encode())
+                client.send(res_body)
+                client.close()
+
+        except KeyboardInterrupt:
+            server.close()
+            sys.exit(0)
+
+
+main()

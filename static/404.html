@@ -73,14 +73,23 @@
 </head>
 <body>
   <div class="container">
-    <a href="" class="brand"><img src="images/HTML-404-Error-Page.gif" width="500" height="300"></a>
+    <a href="" class="brand"><img src="../images/HTML-404-Error-Page.gif" width="500" height="300"></a>
   
     <h2>404</h2>
     <h1>Page not found.</h1>
   
     <p>We’re sorry but it appears that we can’t find the page you were looking for. Usually this occurs because of a page that previously existed was removed or your username/ password is not TRUE.</p>
   
-    <span class="go-back"><a href="../static/index.html">Go back Login</a></span>
+    <span class="go-back"><a href="../index.html">Go back Login</a></span>
   </div>
 </body>
+<script>
+  (function() {
+    document.getElementById("ajaxSubmit").addEventListener('click', redirect);
+
+    function redirect() {
+      window.location.href = "http://localhost:3000";
+    }
+  })();
+</script>
 </html>
