@@ -22,7 +22,9 @@ def create_response(status, body):
         status_line = 'HTTP/1.1 404 NOT FOUND\r\n'
 
     headers = 'Content-Type: text/html\r\n'
+    headers += 'Accept: */*\r\n'
     headers += 'Connection: close\r\n\r\n'
+
     res_header = status_line + headers
     return res_header, body
 
@@ -34,7 +36,7 @@ def get_filename(req):
     if filename == '':
         filename = 'index.html'
 
-    return os.path.join(os.path.dirname(__file__), 'static/', filename)
+    return os.path.join(os.path.dirname(__file__), filename)
 
 
 def read_file(filename):
@@ -42,8 +44,6 @@ def read_file(filename):
         file_obj = open(filename, 'rb')
         data = file_obj.read()
         file_obj.close()
-        filename = None
-        # File is found. Set the respone code accordingly
         response_code = 200
 
     except FileNotFoundError:
@@ -80,7 +80,7 @@ def main():
 
             req = data.decode()
             req_method = req.split(' ')[0]
-            res_file = os.path.join(cur_path, 'static/index.html')
+            res_file = os.path.join(cur_path, 'index.html')
             res_status, data = read_file(res_file)
 
             if req_method == 'GET' or req_method == 'POST':
@@ -92,12 +92,16 @@ def main():
                     prev_status = 200
                 elif req_method == 'GET' and prev_method == 'POST':
                     if username == 'admin' and password == 'admin':
-                        res_file = os.path.join(cur_path, 'static/info.html')
+                        res_file = os.path.join(cur_path, 'info.html')
                         prev_status = 200
                     else:
                         res_status = 404
-                        res_file = os.path.join(cur_path, 'static/404.html')
+                        res_file = os.path.join(cur_path, '404.html')
                         prev_status = res_status
+
+                    file_name = get_filename(req)
+                    if file_name.find('.html') == -1:
+                        res_file = os.path.join(cur_path, file_name)
 
                     file_obj = open(res_file, 'rb')
                     data = file_obj.read()
