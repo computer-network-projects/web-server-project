@@ -61,8 +61,6 @@ def main():
     server.listen(5)
 
     cur_path = os.path.dirname(__file__)
-    prev_status = None
-
     print('Server started on PORT', port)
 
     while True:
@@ -80,17 +78,13 @@ def main():
             res_status, data = read_file(res_file)
 
             if req_method == 'GET' or req_method == 'POST':
-                if prev_status == 404 and req.find('index.html') != -1:
-                    prev_status = 200
-                elif req_method == 'POST':
+                if req_method == 'POST':
                     username, password = parse_data(req)
                     if username == 'admin' and password == 'admin':
                         res_file = os.path.join(cur_path, 'info.html')
-                        prev_status = 200
                     else:
                         res_status = 404
                         res_file = os.path.join(cur_path, '404.html')
-                        prev_status = res_status
 
                 elif req_method == 'GET':
                     file_name = get_filename(req)
