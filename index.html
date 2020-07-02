@@ -11,7 +11,7 @@
 </head>
   <body>
     <div class="d-flex justify-content-center align-items-center container mt-5">
-        <form action="http://localhost:3000" class="login col-sm-4">
+        <form action="http://localhost:4000" class="login col-sm-4">
           <div class="form-group">
             <label for="username">Username</label>
             <input type="text" class="form-control" id="username">
@@ -40,7 +40,7 @@
               return false;
             }
 
-              httpRequest.open('POST', '/info.html');
+              httpRequest.open('POST', '/');
               httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
               httpRequest.send('username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password));
           }

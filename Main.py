@@ -55,9 +55,8 @@ def read_file(filename):
 
 
 def main():
-    port = 3000
+    port = 4000
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server.bind(('', port))
     server.listen(5)
 
@@ -70,8 +69,6 @@ def main():
     while True:
         try:
             client, address = server.accept()
-            client.settimeout(120)
-
             print('Client connected:', client)
             data = client.recv(1024)
             if not data:
@@ -102,6 +99,8 @@ def main():
                     file_name = get_filename(req)
                     if file_name.find('.html') == -1:
                         res_file = os.path.join(cur_path, file_name)
+
+                    print(req)
 
                     file_obj = open(res_file, 'rb')
                     data = file_obj.read()
