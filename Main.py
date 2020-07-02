@@ -61,8 +61,7 @@ def main():
     server.listen(5)
 
     cur_path = os.path.dirname(__file__)
-    prev_method, prev_status = None, None
-    username, password = None, None
+    prev_status = None
 
     print('Server started on PORT', port)
 
@@ -74,7 +73,7 @@ def main():
             if not data:
                 print('No data received')
                 break
-
+            print(data)
             req = data.decode()
             req_method = req.split(' ')[0]
             res_file = os.path.join(cur_path, 'index.html')
@@ -85,9 +84,6 @@ def main():
                     prev_status = 200
                 elif req_method == 'POST':
                     username, password = parse_data(req)
-                    prev_method = 'POST'
-                    prev_status = 200
-                elif req_method == 'GET' and prev_method == 'POST':
                     if username == 'admin' and password == 'admin':
                         res_file = os.path.join(cur_path, 'info.html')
                         prev_status = 200
@@ -96,14 +92,13 @@ def main():
                         res_file = os.path.join(cur_path, '404.html')
                         prev_status = res_status
 
+                elif req_method == 'GET':
                     file_name = get_filename(req)
                     if file_name.find('.html') == -1:
                         res_file = os.path.join(cur_path, file_name)
 
-                    print(req)
-
-                    file_obj = open(res_file, 'rb')
-                    data = file_obj.read()
+                file_obj = open(res_file, 'rb')
+                data = file_obj.read()
 
                 res_header, res_body = create_response(res_status, data)
                 client.send(res_header.encode())

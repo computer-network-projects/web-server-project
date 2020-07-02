@@ -11,41 +11,19 @@
 </head>
   <body>
     <div class="d-flex justify-content-center align-items-center container mt-5">
-        <form action="http://localhost:4000" class="login col-sm-4">
+        <form method="post" class="login col-sm-4">
           <div class="form-group">
             <label for="username">Username</label>
-            <input type="text" class="form-control" id="username">
+            <input name="username" type="text" class="form-control" id="username">
           </div>
           <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" class="form-control" id="password">
+            <input name="password" type="password" class="form-control" id="password">
           </div>
 
-          <button id="ajaxSubmit" type="submit" class="btn btn-success btn-block">Login</button>
+          <button type="submit" class="btn btn-success btn-block">Login</button>
         </form>
     </div>
-
-    <script type="text/javascript">
-        (function() {
-          let httpRequest;
-          document.getElementById("ajaxSubmit").addEventListener('click', postSubmit);
-
-          function postSubmit() {
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-            httpRequest = new XMLHttpRequest();
-
-            if (!httpRequest) {
-              alert('Cannot create an XMLHTTP instance');
-              return false;
-            }
-
-              httpRequest.open('POST', '/');
-              httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-              httpRequest.send('username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password));
-          }
-        })();
-    </script>
 
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
